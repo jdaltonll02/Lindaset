@@ -9,7 +9,7 @@ __pycache__/
 *.so
 .Python
 venv/
-env/
+/liberian-nlp-platform/backend/.env
 ENV/
 .venv/
 
@@ -22,11 +22,11 @@ media/
 staticfiles/
 
 # Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
 
 # Build outputs
 build/
