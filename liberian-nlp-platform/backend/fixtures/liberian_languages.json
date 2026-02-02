@@ -1,0 +1,258 @@
+[
+  {
+    "model": "languages.language",
+    "pk": 1,
+    "fields": {
+      "name": "Bassa",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 2,
+    "fields": {
+      "name": "Kpelle",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 3,
+    "fields": {
+      "name": "Gio",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 4,
+    "fields": {
+      "name": "Mano",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 5,
+    "fields": {
+      "name": "Krahn",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 6,
+    "fields": {
+      "name": "Grebo",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 7,
+    "fields": {
+      "name": "Vai",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 8,
+    "fields": {
+      "name": "Gola",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 9,
+    "fields": {
+      "name": "Kissi",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 10,
+    "fields": {
+      "name": "Gbandi",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 11,
+    "fields": {
+      "name": "Loma",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 12,
+    "fields": {
+      "name": "Mandingo",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 13,
+    "fields": {
+      "name": "Mende",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 14,
+    "fields": {
+      "name": "Kru",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 15,
+    "fields": {
+      "name": "Sapo",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  },
+  {
+    "model": "languages.language",
+    "pk": 16,
+    "fields": {
+      "name": "Belleh",
+      "iso_code": null,
+      "family": "niger_congo",
+      "is_active": true,
+      "description": "",
+      "regions": "Liberia",
+      "estimated_speakers": null,
+      "endangerment_level": "safe",
+      "created_at": "2026-02-01T22:14:23.765043Z",
+      "updated_at": "2026-02-01T22:14:23.765043Z"
+    }
+  }
+]

@@ -24,7 +24,7 @@ class Language(models.Model):
     
     # Language status
     endangerment_level = models.CharField(
-        max_length=20,
+        max_length=25,
         choices=[
             ('safe', 'Safe'),
             ('vulnerable', 'Vulnerable'),

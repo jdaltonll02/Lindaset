@@ -80,7 +80,7 @@ class AudioRecording(models.Model):
         blank=True
     )
     speaker_gender = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=[
             ('male', 'Male'),
             ('female', 'Female'),

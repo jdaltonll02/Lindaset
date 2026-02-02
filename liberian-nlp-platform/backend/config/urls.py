@@ -14,6 +14,8 @@ urlpatterns = [
     path('api/v1/quality/', include('apps.quality.urls')),
     path('api/v1/datasets/', include('apps.datasets.urls')),
     path('api/v1/governance/', include('apps.governance.urls')),
+    # MongoDB API endpoints
+    path('', include('apps.languages.mongo_urls')),
 ]
 
 if settings.DEBUG:

@@ -6,15 +6,17 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 // Pages
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
-import { RegisterPage } from './pages/RegisterPage'
-import { DashboardPage } from './pages/DashboardPage'
-import { LanguagesPage } from './pages/LanguagesPage'
-import { TranslationWorkspace } from './pages/TranslationWorkspace'
-import { AudioStudio } from './pages/AudioStudio'
-import { ReviewPage } from './pages/ReviewPage'
-import { ProfilePage } from './pages/ProfilePage'
-import { AdminPage } from './pages/AdminPage'
-import { DatasetsPage } from './pages/DatasetsPage'
+import { 
+  RegisterPage, 
+  DashboardPage, 
+  LanguagesPage, 
+  TranslationWorkspace, 
+  AudioStudio, 
+  ReviewPage, 
+  ProfilePage, 
+  AdminPage, 
+  DatasetsPage 
+} from './pages'
 
 function App() {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -40,6 +42,8 @@ function App() {
         element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />} 
       />
 
+      {/* Remove test routes */}
+      
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>

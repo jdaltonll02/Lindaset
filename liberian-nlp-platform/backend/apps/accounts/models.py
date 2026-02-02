@@ -18,6 +18,23 @@ class User(AbstractUser):
         choices=UserRole.choices,
         default=UserRole.CONTRIBUTOR
     )
+    
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='nlp_users',
+        related_query_name='nlp_user',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='nlp_users',
+        related_query_name='nlp_user',
+    )
     reputation_score = models.FloatField(
         default=0.0,
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)]
