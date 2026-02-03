@@ -1,15 +1,21 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { useAuthStore } from '../store/authStore'
 import { 
   GlobeAltIcon, 
   SpeakerWaveIcon, 
   DocumentTextIcon,
   UserGroupIcon,
   ChartBarIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  UserCircleIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline'
 
 export function LandingPage() {
+  const { isAuthenticated, user, logout } = useAuthStore()
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const features = [
     {
       icon: DocumentTextIcon,
@@ -53,12 +59,47 @@ export function LandingPage() {
               </span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/login" className="text-neutral-600 hover:text-neutral-800">
-                Sign In
-              </Link>
-              <Link to="/register" className="btn-primary">
-                Get Started
-              </Link>
+              {isAuthenticated ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                    className="flex items-center space-x-2 text-neutral-600 hover:text-neutral-800"
+                  >
+                    <UserCircleIcon className="h-6 w-6" />
+                    <span>{user?.username}</span>
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </button>
+                  {showProfileMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-neutral-200 z-10">
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        Edit Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout()
+                          setShowProfileMenu(false)
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link to="/login" className="text-neutral-600 hover:text-neutral-800">
+                    Sign In
+                  </Link>
+                  <Link to="/register" className="btn-primary">
+                    Get Started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

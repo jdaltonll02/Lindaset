@@ -1,16 +1,13 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 
 export function ProtectedRoute() {
   const { isAuthenticated } = useAuthStore()
-  
-  console.log('ProtectedRoute - isAuthenticated:', isAuthenticated)
+  const location = useLocation()
   
   if (!isAuthenticated) {
-    console.log('Not authenticated, redirecting to login')
-    return <Navigate to="/login" />
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
   
-  console.log('Authenticated, rendering Outlet')
   return <Outlet />
 }

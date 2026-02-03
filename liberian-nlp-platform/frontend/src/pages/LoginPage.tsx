@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from?.pathname || '/'
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -35,8 +37,8 @@ export function LoginPage() {
         password: formData.password
       })
       
-      console.log('Login successful, navigating to dashboard')
-      navigate('/dashboard')
+      console.log('Login successful, navigating to:', from)
+      navigate(from, { replace: true })
     } catch (error: any) {
       console.error('Login error:', error)
       setErrors({ submit: 'Invalid username or password' })

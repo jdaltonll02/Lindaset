@@ -28,15 +28,16 @@ interface AppRoutesProps {
 export function AppRoutes({ isAuthenticated }: AppRoutesProps) {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public routes - accessible to all */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/home" element={<LandingPage />} />
       <Route 
         path="/login" 
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} 
+        element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />} 
       />
       <Route 
         path="/register" 
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />} 
+        element={isAuthenticated ? <Navigate to="/" /> : <RegisterPage />} 
       />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />

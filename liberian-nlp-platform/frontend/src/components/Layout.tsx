@@ -9,12 +9,13 @@ export function Layout() {
   const isAdmin = userRole === 'admin' || userRole === 'superuser'
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: '🏠' },
+    { name: 'Home', href: '/', icon: '🏠' },
+    { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Languages', href: '/languages', icon: '🌍' },
     { name: 'Translate', href: '/translate', icon: '🔄' },
     { name: 'Record', href: '/record', icon: '🎤' },
     { name: 'Review', href: '/review', icon: '🔍' },
-    { name: 'Datasets', href: '/datasets', icon: '📊' },
+    { name: 'Datasets', href: '/datasets', icon: '📁' },
     ...(isAdmin ? [{ name: 'Admin', href: '/admin', icon: '⚙️' }] : []),
   ]
 
@@ -24,7 +25,7 @@ export function Layout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link to="/dashboard" className="flex items-center">
+              <Link to="/" className="flex items-center">
                 <span className="text-2xl mr-3">🇱🇷</span>
                 <h1 className="text-xl font-semibold text-gray-900">
                   Liberian NLP Platform
