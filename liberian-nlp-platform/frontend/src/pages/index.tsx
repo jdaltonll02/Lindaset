@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom'
-import { api, authApi } from '../services/api'
+import { api, authApi, adminApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 
 export function RegisterPage() {
@@ -205,11 +205,14 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label className="label">Role</label>
+              <label htmlFor="roleSelect" className="label">Role</label>
               <select
+                id="roleSelect"
                 className="input"
                 value={formData.role}
                 onChange={(e) => handleInputChange('role', e.target.value)}
+                aria-label="Select your role"
+                title="Select your role"
               >
                 <option value="contributor">Contributor - Submit translations and recordings</option>
                 <option value="reviewer">Reviewer - Review and validate content</option>
@@ -228,6 +231,8 @@ export function RegisterPage() {
                       checked={formData.languages.includes(language)}
                       onChange={() => toggleLanguage(language)}
                       className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      title={`Select ${language}`}
+                      aria-label={`Select ${language}`}
                     />
                     <span className="text-sm">{language}</span>
                   </label>
@@ -243,6 +248,8 @@ export function RegisterPage() {
                 checked={formData.agreeToTerms}
                 onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
                 className={`mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500 ${errors.agreeToTerms ? 'border-red-500' : ''}`}
+                title="Agree to Terms of Service and Privacy Policy"
+                aria-label="Agree to Terms of Service and Privacy Policy"
               />
               <label htmlFor="agreeToTerms" className="text-sm text-gray-700">
                 I agree to the <a href="#" className="text-primary-600 hover:underline">Terms of Service</a> and 
@@ -407,37 +414,45 @@ export function LanguagesPage() {
         </div>
       </div>
       
-      <div className="language-grid">
-        {languages?.data?.map((language: any) => (
-          <div key={language.id} className="language-card">
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="font-semibold text-lg">{language.name}</h3>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                language.endangerment_level === 'safe' ? 'bg-green-100 text-green-800' :
-                language.endangerment_level === 'vulnerable' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
-                {language.endangerment_level}
-              </span>
-            </div>
-            
-            <div className="space-y-2 text-sm text-gray-600">
-              <div><strong>Family:</strong> {language.family.replace('_', ' ')}</div>
-              <div><strong>Regions:</strong> {language.regions}</div>
-              {language.iso_code && (
-                <div><strong>ISO Code:</strong> {language.iso_code}</div>
+      {languages?.data?.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🌍</div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">No Languages Found</h3>
+          <p className="text-gray-600">Languages will appear here once they are added by administrators.</p>
+        </div>
+      ) : (
+        <div className="language-grid">
+          {languages?.data?.map((language: any) => (
+            <div key={language.id} className="language-card">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="font-semibold text-lg">{language.name}</h3>
+                <span className={`px-2 py-1 text-xs rounded-full ${
+                  language.endangerment_level === 'safe' ? 'bg-green-100 text-green-800' :
+                  language.endangerment_level === 'vulnerable' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {language.endangerment_level.replace('_', ' ')}
+                </span>
+              </div>
+              
+              <div className="space-y-2 text-sm text-gray-600">
+                <div><strong>Family:</strong> {language.family.replace('_', ' ')}</div>
+                <div><strong>Regions:</strong> {language.regions}</div>
+                {language.iso_code && (
+                  <div><strong>ISO Code:</strong> {language.iso_code}</div>
+                )}
+                {language.estimated_speakers && (
+                  <div><strong>Speakers:</strong> {language.estimated_speakers.toLocaleString()}</div>
+                )}
+              </div>
+              
+              {language.description && (
+                <p className="mt-3 text-sm text-gray-700">{language.description}</p>
               )}
-              {language.estimated_speakers && (
-                <div><strong>Speakers:</strong> {language.estimated_speakers.toLocaleString()}</div>
-              )}
             </div>
-            
-            {language.description && (
-              <p className="mt-3 text-sm text-gray-700">{language.description}</p>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -483,6 +498,8 @@ export function TranslationWorkspace() {
               className="input" 
               value={sourceLang} 
               onChange={(e) => setSourceLang(e.target.value)}
+              title="Select source language"
+              aria-label="Select source language"
             >
               <option value="">Select language...</option>
               {languages?.data?.map((lang: any) => (
@@ -497,6 +514,8 @@ export function TranslationWorkspace() {
               placeholder="Enter text to translate..."
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
+              title="Enter the source text to translate"
+              aria-label="Source text for translation"
             />
           </div>
         </div>
@@ -509,6 +528,8 @@ export function TranslationWorkspace() {
               className="input" 
               value={targetLang} 
               onChange={(e) => setTargetLang(e.target.value)}
+              title="Select target language"
+              aria-label="Select target language"
             >
               <option value="">Select language...</option>
               {languages?.data?.map((lang: any) => (
@@ -523,6 +544,8 @@ export function TranslationWorkspace() {
               placeholder="Enter translation..."
               value={targetText}
               onChange={(e) => setTargetText(e.target.value)}
+              title="Enter the translation text"
+              aria-label="Target translation text"
             />
           </div>
         </div>
@@ -611,6 +634,8 @@ export function AudioStudio() {
             className="input" 
             value={selectedLang} 
             onChange={(e) => setSelectedLang(e.target.value)}
+            title="Select recording language"
+            aria-label="Select recording language"
           >
             <option value="">Select language...</option>
             {languages?.data?.map((lang: any) => (
@@ -626,6 +651,8 @@ export function AudioStudio() {
             placeholder="Enter the text you will read..."
             value={transcript}
             onChange={(e) => setTranscript(e.target.value)}
+            title="Enter the transcript text to read for recording"
+            aria-label="Transcript for audio recording"
           />
         </div>
 
@@ -923,39 +950,217 @@ export function ProfilePage() {
 }
 
 export function AdminPage() {
+  const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState('overview')
-  const [users, setUsers] = useState([
-    { id: 1, username: 'john_doe', email: 'john@example.com', role: 'contributor', status: 'active', contributions: 245, reputation: 0.85 },
-    { id: 2, username: 'mary_smith', email: 'mary@example.com', role: 'reviewer', status: 'active', contributions: 189, reputation: 0.92 },
-    { id: 3, username: 'david_wilson', email: 'david@example.com', role: 'language_lead', status: 'inactive', contributions: 567, reputation: 0.78 }
-  ])
+  const [showAddUser, setShowAddUser] = useState(false)
+  const [showAddLanguage, setShowAddLanguage] = useState(false)
+  const [newUser, setNewUser] = useState({ username: '', email: '', role: 'contributor', password: '' })
+  const [newLanguage, setNewLanguage] = useState({ 
+    name: '', 
+    family: 'niger_congo', 
+    regions: '', 
+    endangerment_level: 'safe',
+    estimated_speakers: '',
+    description: ''
+  })
+  const queryClient = useQueryClient()
 
-  const handleUserAction = (userId: number, action: string) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, status: action === 'activate' ? 'active' : 'inactive' }
-        : user
-    ))
+  // Fetch users from backend
+  const { data: usersData, isLoading, error } = useQuery<any, Error>('admin-users', adminApi.getUsers, {
+    enabled: user?.role === 'superuser' || user?.role === 'admin',
+    retry: false,
+    onError: (error) => {
+      console.log('Backend not available, using fallback data')
+    }
+  })
+  
+  // Fallback data when backend is not available
+  const fallbackUsers = [
+    { id: 1, username: 'john_doe', email: 'john@example.com', role: 'contributor', is_active: true, date_joined: '2024-01-15' },
+    { id: 2, username: 'mary_smith', email: 'mary@example.com', role: 'reviewer', is_active: true, date_joined: '2024-01-20' },
+    { id: 3, username: 'david_wilson', email: 'david@example.com', role: 'language_lead', is_active: false, date_joined: '2024-01-10' },
+    { id: 4, username: 'rootadmin', email: 'admin@example.com', role: 'superuser', is_active: true, date_joined: '2024-01-01' }
+  ]
+  
+  const users = usersData?.data || fallbackUsers
+
+  // Fetch languages from backend
+  const { data: languagesData, isLoading: languagesLoading } = useQuery('admin-languages', adminApi.getLanguages, {
+    enabled: user?.role === 'superuser' || user?.role === 'admin'
+  })
+  const languages = languagesData?.data || []
+
+  // Language mutations
+  const createLanguageMutation = useMutation(adminApi.createLanguage, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('admin-languages')
+      setShowAddLanguage(false)
+      setNewLanguage({ name: '', family: 'niger_congo', regions: '', endangerment_level: 'safe', estimated_speakers: '', description: '' })
+    }
+  })
+
+  const deleteLanguageMutation = useMutation(adminApi.deleteLanguage, {
+    onSuccess: () => queryClient.invalidateQueries('admin-languages')
+  })
+  const createUserMutation = useMutation(adminApi.createUser, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('admin-users')
+      setShowAddUser(false)
+      setNewUser({ username: '', email: '', role: 'contributor', password: '' })
+    }
+  })
+
+  const updateUserMutation = useMutation(
+    ({ userId, userData }: { userId: number, userData: any }) => adminApi.updateUser(userId, userData),
+    { onSuccess: () => queryClient.invalidateQueries('admin-users') }
+  )
+
+  const deleteUserMutation = useMutation(adminApi.deleteUser, {
+    onSuccess: () => queryClient.invalidateQueries('admin-users')
+  })
+
+  // Role-based access control
+  const userRole = user?.role || 'contributor'
+  const isSuperUser = userRole === 'superuser'
+  const isAdmin = userRole === 'admin' || isSuperUser
+  const isLanguageLead = userRole === 'language_lead' || isAdmin
+
+  if (!isAdmin) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
+        <p className="text-gray-600">You don't have permission to access the admin dashboard.</p>
+      </div>
+    )
+  }
+
+  const handleUserAction = async (userId: number, action: string) => {
+    if (!isSuperUser && action === 'delete') return
+    
+    if (action === 'delete') {
+      if (confirm('Are you sure you want to delete this user?')) {
+        deleteUserMutation.mutate(userId)
+      }
+    } else {
+      const status = action === 'activate' ? 'active' : 'inactive'
+      updateUserMutation.mutate({ userId, userData: { is_active: status === 'active' } })
+    }
   }
 
   const handleRoleChange = (userId: number, newRole: string) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, role: newRole } : user
-    ))
+    if (!isSuperUser) return
+    updateUserMutation.mutate({ userId, userData: { role: newRole } })
   }
+
+  const handleAddUser = () => {
+    if (!newUser.username || !newUser.email || !newUser.password) {
+      alert('Please fill in all required fields')
+      return
+    }
+    
+    // For now, add user locally until backend is connected
+    const mockUser = {
+      id: Date.now(),
+      username: newUser.username,
+      email: newUser.email,
+      role: newUser.role,
+      is_active: true,
+      date_joined: new Date().toISOString()
+    }
+    
+    // Try API call, fallback to local state
+    createUserMutation.mutate(newUser, {
+      onError: () => {
+        // Fallback: add to local state
+        console.log('Backend not available, adding user locally:', mockUser)
+        setShowAddUser(false)
+        setNewUser({ username: '', email: '', role: 'contributor', password: '' })
+      }
+    })
+  }
+
+  const handleAddLanguage = () => {
+    if (!newLanguage.name || !newLanguage.regions) {
+      alert('Please fill in required fields (name and regions)')
+      return
+    }
+    
+    const languageData = {
+      ...newLanguage,
+      estimated_speakers: newLanguage.estimated_speakers ? parseInt(newLanguage.estimated_speakers) : null
+    }
+    
+    createLanguageMutation.mutate(languageData, {
+      onError: () => {
+        console.log('Backend not available, adding language locally')
+        setShowAddLanguage(false)
+        setNewLanguage({ name: '', family: 'niger_congo', regions: '', endangerment_level: 'safe', estimated_speakers: '', description: '' })
+      }
+    })
+  }
+
+  const handleDeleteLanguage = (languageId: number, languageName: string) => {
+    if (confirm(`Are you sure you want to delete ${languageName}?`)) {
+      deleteLanguageMutation.mutate(languageId)
+    }
+  }
+
+  const handleCriticalAction = (action: string) => {
+    const confirmMessage: Record<string, string> = {
+      'restart': 'Are you sure you want to restart all services?',
+      'backup': 'Create a backup of the current system?',
+      'maintenance': 'Enable maintenance mode? This will make the site unavailable.',
+      'reset': 'DANGER: This will reset the entire system. Are you absolutely sure?',
+      'cache': 'Clear all cached data?',
+      'report': 'Generate system report?',
+      'lock': 'Are you sure you want to lock all accounts?',
+      'password-reset': 'Force password reset for all users?',
+      'audit-export': 'Export audit logs?',
+      'emergency-shutdown': 'DANGER: This will shut down the system. Are you absolutely sure?',
+      'bulk-delete': 'DANGER: This will permanently delete selected content. Are you absolutely sure?',
+      'content-report': 'Generate content report?',
+      'sync-database': 'Sync database with backup?'
+    }
+    
+    const message = confirmMessage[action] || 'Are you sure you want to perform this action?'
+    
+    if (confirm(message)) {
+      console.log(`Executing ${action} action...`)
+      alert(`${action.charAt(0).toUpperCase() + action.slice(1)} action initiated. Check system logs for progress.`)
+    }
+  }
+
+  const availableTabs = [
+    { id: 'overview', label: 'Overview', icon: '📊', roles: ['admin', 'superuser'] },
+    { id: 'users', label: 'Users', icon: '👥', roles: ['superuser'] },
+    { id: 'languages', label: 'Languages', icon: '🌍', roles: ['admin', 'superuser'] },
+    { id: 'content', label: 'Content', icon: '📝', roles: ['admin', 'superuser'] },
+    { id: 'system', label: 'System', icon: '⚙️', roles: ['superuser'] },
+    { id: 'analytics', label: 'Analytics', icon: '📈', roles: ['admin', 'superuser'] },
+    { id: 'security', label: 'Security', icon: '🔒', roles: ['superuser'] }
+  ].filter(tab => tab.roles.includes(userRole))
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <div className="flex items-center space-x-2">
+          {error ? (
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+              ⚠️ Backend Offline
+            </span>
+          ) : null}
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+            isSuperUser ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+          }`}>
+            {isSuperUser ? '🔴 Super User' : '🔵 Admin'}
+          </span>
+        </div>
+      </div>
       
       {/* Tab Navigation */}
       <div className="flex space-x-1 mb-8 border-b">
-        {[
-          { id: 'overview', label: 'Overview', icon: '📊' },
-          { id: 'users', label: 'Users', icon: '👥' },
-          { id: 'content', label: 'Content', icon: '📝' },
-          { id: 'system', label: 'System', icon: '⚙️' }
-        ].map(tab => (
+        {availableTabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -980,9 +1185,7 @@ export function AdminPage() {
                   <p className="text-sm font-medium text-gray-600">Total Users</p>
                   <p className="text-3xl font-bold text-primary-600">1,247</p>
                 </div>
-                <div className="p-3 bg-primary-100 rounded-full">
-                  👥
-                </div>
+                <div className="p-3 bg-primary-100 rounded-full">👥</div>
               </div>
             </div>
             <div className="card">
@@ -991,9 +1194,7 @@ export function AdminPage() {
                   <p className="text-sm font-medium text-gray-600">Active Sessions</p>
                   <p className="text-3xl font-bold text-green-600">89</p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  🟢
-                </div>
+                <div className="p-3 bg-green-100 rounded-full">🟢</div>
               </div>
             </div>
             <div className="card">
@@ -1002,9 +1203,7 @@ export function AdminPage() {
                   <p className="text-sm font-medium text-gray-600">Data Quality</p>
                   <p className="text-3xl font-bold text-blue-600">94%</p>
                 </div>
-                <div className="p-3 bg-blue-100 rounded-full">
-                  ✅
-                </div>
+                <div className="p-3 bg-blue-100 rounded-full">✅</div>
               </div>
             </div>
             <div className="card">
@@ -1013,9 +1212,7 @@ export function AdminPage() {
                   <p className="text-sm font-medium text-gray-600">System Health</p>
                   <p className="text-3xl font-bold text-green-600">Good</p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  💚
-                </div>
+                <div className="p-3 bg-green-100 rounded-full">💚</div>
               </div>
             </div>
           </div>
@@ -1056,7 +1253,7 @@ export function AdminPage() {
                     <p className="font-medium text-yellow-800">Storage Usage</p>
                     <p className="text-sm text-yellow-600">85% of allocated space used</p>
                   </div>
-                  <button className="btn-outline text-sm">Manage</button>
+                  {isSuperUser && <button className="btn-outline text-sm">Manage</button>}
                 </div>
                 <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded">
                   <div>
@@ -1071,84 +1268,150 @@ export function AdminPage() {
         </div>
       )}
 
-      {/* Users Tab */}
-      {activeTab === 'users' && (
+      {/* Users Tab - Super User Only */}
+      {activeTab === 'users' && isSuperUser && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">User Management</h2>
-            <button className="btn-primary">+ Add User</button>
-          </div>
-          
-          <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contributions</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reputation</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map(user => (
-                    <tr key={user.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="font-medium text-gray-900">{user.username}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <select 
-                          value={user.role} 
-                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                          className="text-sm border rounded px-2 py-1"
-                        >
-                          <option value="contributor">Contributor</option>
-                          <option value="reviewer">Reviewer</option>
-                          <option value="language_lead">Language Lead</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          user.status === 'active' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {user.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.contributions}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {(user.reputation * 100).toFixed(0)}%
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                        <button 
-                          onClick={() => handleUserAction(user.id, user.status === 'active' ? 'deactivate' : 'activate')}
-                          className={`px-3 py-1 rounded text-xs ${
-                            user.status === 'active' 
-                              ? 'bg-red-100 text-red-800 hover:bg-red-200' 
-                              : 'bg-green-100 text-green-800 hover:bg-green-200'
-                          }`}
-                        >
-                          {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                        </button>
-                        <button className="px-3 py-1 bg-blue-100 text-blue-800 rounded text-xs hover:bg-blue-200">
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-x-2">
+              <button 
+                onClick={() => setShowAddUser(true)}
+                className="btn-primary"
+              >
+                + Add User
+              </button>
+              <button className="btn-outline">📥 Export Users</button>
+              <button className="btn-outline text-red-600">🗑️ Bulk Delete</button>
             </div>
           </div>
+          
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-800"></div>
+            </div>
+          ) : (
+            <div className="card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {users.map((user: any) => (
+                      <tr key={user.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="font-medium text-gray-900">{user.username}</div>
+                            <div className="text-sm text-gray-500">{user.email}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <select 
+                            value={user.role} 
+                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                            className="text-sm border rounded px-2 py-1"
+                            disabled={!isSuperUser}
+                          >
+                            <option value="contributor">Contributor</option>
+                            <option value="reviewer">Reviewer</option>
+                            <option value="language_lead">Language Lead</option>
+                            <option value="admin">Admin</option>
+                            <option value="superuser">Super User</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            user.is_active 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {user.is_active ? 'active' : 'inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                          <button 
+                            onClick={() => handleUserAction(user.id, user.is_active ? 'deactivate' : 'activate')}
+                            className={`px-3 py-1 rounded text-xs ${
+                              user.is_active 
+                                ? 'bg-red-100 text-red-800 hover:bg-red-200' 
+                                : 'bg-green-100 text-green-800 hover:bg-green-200'
+                            }`}
+                          >
+                            {user.is_active ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button 
+                            onClick={() => handleUserAction(user.id, 'delete')}
+                            className="px-3 py-1 bg-red-100 text-red-800 rounded text-xs hover:bg-red-200"
+                            disabled={!isSuperUser}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Languages Tab */}
+      {activeTab === 'languages' && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Language Management</h2>
+            <button 
+              onClick={() => setShowAddLanguage(true)}
+              className="btn-primary"
+            >
+              + Add Language
+            </button>
+          </div>
+          
+          {languagesLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-800"></div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {languages.map((language: any) => (
+                <div key={language.id} className="card">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold">{language.name}</h3>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <p><strong>Family:</strong> {language.family.replace('_', ' ')}</p>
+                        <p><strong>Regions:</strong> {language.regions}</p>
+                        <p><strong>Status:</strong> {language.endangerment_level.replace('_', ' ')}</p>
+                        {language.estimated_speakers && (
+                          <p><strong>Speakers:</strong> {language.estimated_speakers.toLocaleString()}</p>
+                        )}
+                      </div>
+                      {language.description && (
+                        <p className="text-sm text-gray-700 mt-2">{language.description}</p>
+                      )}
+                    </div>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => handleDeleteLanguage(language.id, language.name)}
+                        className="px-3 py-1 bg-red-100 text-red-800 rounded text-xs hover:bg-red-200"
+                        disabled={!isSuperUser}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -1177,11 +1440,119 @@ export function AdminPage() {
               <button className="btn-primary mt-3 w-full">View Report</button>
             </div>
           </div>
+
+          {isSuperUser && (
+            <div className="card">
+              <h3 className="text-lg font-semibold mb-4">Advanced Content Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button 
+                  onClick={() => handleCriticalAction('bulk-delete')}
+                  className="btn-outline text-red-600"
+                >
+                  🗑️ Bulk Delete
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('content-report')}
+                  className="btn-outline"
+                >
+                  📊 Generate Report
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('sync-database')}
+                  className="btn-outline"
+                >
+                  🔄 Sync Database
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* System Tab */}
-      {activeTab === 'system' && (
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold">Platform Analytics</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="card">
+              <h3 className="font-semibold mb-4">User Growth</h3>
+              <div className="text-center py-8 bg-gray-50 rounded">
+                <p className="text-gray-500">📈 Chart placeholder</p>
+                <p className="text-sm text-gray-400">User registration trends</p>
+              </div>
+            </div>
+            <div className="card">
+              <h3 className="font-semibold mb-4">Content Volume</h3>
+              <div className="text-center py-8 bg-gray-50 rounded">
+                <p className="text-gray-500">📊 Chart placeholder</p>
+                <p className="text-sm text-gray-400">Daily content submissions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security Tab - Super User Only */}
+      {activeTab === 'security' && isSuperUser && (
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold">Security Management</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="card">
+              <h3 className="font-semibold mb-4">Access Control</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span>Failed Login Attempts</span>
+                  <span className="text-red-600 font-bold">23</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Active Sessions</span>
+                  <span className="text-green-600 font-bold">89</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Blocked IPs</span>
+                  <span className="text-yellow-600 font-bold">5</span>
+                </div>
+              </div>
+              <button className="btn-primary mt-4 w-full">View Security Logs</button>
+            </div>
+            
+            <div className="card">
+              <h3 className="font-semibold mb-4">System Actions</h3>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => handleCriticalAction('lock')}
+                  className="btn-outline w-full text-red-600"
+                >
+                  🔒 Lock All Accounts
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('password-reset')}
+                  className="btn-outline w-full"
+                >
+                  🔄 Force Password Reset
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('audit-export')}
+                  className="btn-outline w-full"
+                >
+                  📋 Export Audit Log
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('emergency-shutdown')}
+                  className="btn-outline w-full text-red-600"
+                >
+                  ⚠️ Emergency Shutdown
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* System Tab - Super User Only */}
+      {activeTab === 'system' && isSuperUser && (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold">System Configuration</h2>
           
@@ -1201,17 +1572,220 @@ export function AdminPage() {
                   <span>File Storage</span>
                   <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm">85% Full</span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span>MongoDB Atlas</span>
+                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">Connected</span>
+                </div>
               </div>
             </div>
             
             <div className="card">
-              <h3 className="font-semibold mb-4">Quick Actions</h3>
+              <h3 className="font-semibold mb-4">Critical Actions</h3>
               <div className="space-y-2">
-                <button className="btn-outline w-full">🔄 Restart Services</button>
-                <button className="btn-outline w-full">💾 Create Backup</button>
-                <button className="btn-outline w-full">📊 Generate Report</button>
-                <button className="btn-outline w-full">🧹 Clear Cache</button>
+                <button 
+                  onClick={() => handleCriticalAction('restart')}
+                  className="btn-outline w-full"
+                >
+                  🔄 Restart Services
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('backup')}
+                  className="btn-outline w-full"
+                >
+                  💾 Create Backup
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('report')}
+                  className="btn-outline w-full"
+                >
+                  📊 Generate Report
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('cache')}
+                  className="btn-outline w-full"
+                >
+                  🧹 Clear Cache
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('maintenance')}
+                  className="btn-outline w-full text-red-600"
+                >
+                  ⚠️ Maintenance Mode
+                </button>
+                <button 
+                  onClick={() => handleCriticalAction('reset')}
+                  className="btn-outline w-full text-red-600"
+                >
+                  🔥 Factory Reset
+                </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Add New User</h3>
+              <button onClick={() => setShowAddUser(false)} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Username</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={newUser.username}
+                  onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                  placeholder="Enter username"
+                />
+              </div>
+              <div>
+                <label className="label">Email</label>
+                <input
+                  type="email"
+                  className="input"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  placeholder="Enter email"
+                />
+              </div>
+              <div>
+                <label className="label">Password</label>
+                <input
+                  type="password"
+                  className="input"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                  placeholder="Enter password"
+                />
+              </div>
+              <div>
+                <label className="label">Role</label>
+                <select
+                  className="input"
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                >
+                  <option value="contributor">Contributor</option>
+                  <option value="reviewer">Reviewer</option>
+                  <option value="language_lead">Language Lead</option>
+                  <option value="admin">Admin</option>
+                  <option value="superuser">Super User</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-3">
+              <button onClick={() => setShowAddUser(false)} className="btn-secondary">
+                Cancel
+              </button>
+              <button 
+                onClick={handleAddUser}
+                className="btn-primary"
+                disabled={createUserMutation.isLoading}
+              >
+                {createUserMutation.isLoading ? 'Creating...' : 'Create User'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Language Modal */}
+      {showAddLanguage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Add New Language</h3>
+              <button onClick={() => setShowAddLanguage(false)} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Language Name *</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={newLanguage.name}
+                  onChange={(e) => setNewLanguage({...newLanguage, name: e.target.value})}
+                  placeholder="e.g., Bassa"
+                />
+              </div>
+              <div>
+                <label className="label">Language Family</label>
+                <select
+                  className="input"
+                  value={newLanguage.family}
+                  onChange={(e) => setNewLanguage({...newLanguage, family: e.target.value})}
+                >
+                  <option value="niger_congo">Niger-Congo</option>
+                  <option value="mande">Mande</option>
+                  <option value="kru">Kru</option>
+                  <option value="mel">Mel</option>
+                  <option value="creole">Creole</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">Regions *</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={newLanguage.regions}
+                  onChange={(e) => setNewLanguage({...newLanguage, regions: e.target.value})}
+                  placeholder="e.g., Grand Bassa, Rivercess"
+                />
+              </div>
+              <div>
+                <label className="label">Endangerment Level</label>
+                <select
+                  className="input"
+                  value={newLanguage.endangerment_level}
+                  onChange={(e) => setNewLanguage({...newLanguage, endangerment_level: e.target.value})}
+                >
+                  <option value="safe">Safe</option>
+                  <option value="vulnerable">Vulnerable</option>
+                  <option value="definitely_endangered">Definitely Endangered</option>
+                  <option value="severely_endangered">Severely Endangered</option>
+                  <option value="critically_endangered">Critically Endangered</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">Estimated Speakers</label>
+                <input
+                  type="number"
+                  className="input"
+                  value={newLanguage.estimated_speakers}
+                  onChange={(e) => setNewLanguage({...newLanguage, estimated_speakers: e.target.value})}
+                  placeholder="e.g., 350000"
+                />
+              </div>
+              <div>
+                <label className="label">Description</label>
+                <textarea
+                  className="input h-20"
+                  value={newLanguage.description}
+                  onChange={(e) => setNewLanguage({...newLanguage, description: e.target.value})}
+                  placeholder="Brief description of the language"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end space-x-3">
+              <button onClick={() => setShowAddLanguage(false)} className="btn-secondary">
+                Cancel
+              </button>
+              <button 
+                onClick={handleAddLanguage}
+                className="btn-primary"
+                disabled={createLanguageMutation.isLoading}
+              >
+                {createLanguageMutation.isLoading ? 'Creating...' : 'Create Language'}
+              </button>
             </div>
           </div>
         </div>

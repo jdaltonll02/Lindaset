@@ -6,16 +6,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/accounts/', include('apps.accounts.urls')),
-    path('api/v1/languages/', include('apps.languages.urls')),
-    path('api/v1/tasks/', include('apps.tasks.urls')),
-    path('api/v1/text-data/', include('apps.text_data.urls')),
-    path('api/v1/audio-data/', include('apps.audio_data.urls')),
-    path('api/v1/reviews/', include('apps.reviews.urls')),
-    path('api/v1/quality/', include('apps.quality.urls')),
-    path('api/v1/datasets/', include('apps.datasets.urls')),
-    path('api/v1/governance/', include('apps.governance.urls')),
-    # MongoDB API endpoints
-    path('', include('apps.languages.mongo_urls')),
+    path('api/v1/', include('apps.languages.urls')),
+    path('api/v1/system/', include('apps.system.urls')),
+    path('api/v1/roles/', include('apps.roles.urls')),
 ]
 
 if settings.DEBUG:

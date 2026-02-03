@@ -5,6 +5,9 @@ export function Layout() {
   const location = useLocation()
   const { user, logout } = useAuthStore()
 
+  const userRole = user?.role || 'contributor'
+  const isAdmin = userRole === 'admin' || userRole === 'superuser'
+
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '🏠' },
     { name: 'Languages', href: '/languages', icon: '🌍' },
@@ -12,6 +15,7 @@ export function Layout() {
     { name: 'Record', href: '/record', icon: '🎤' },
     { name: 'Review', href: '/review', icon: '🔍' },
     { name: 'Datasets', href: '/datasets', icon: '📊' },
+    ...(isAdmin ? [{ name: 'Admin', href: '/admin', icon: '⚙️' }] : []),
   ]
 
   return (

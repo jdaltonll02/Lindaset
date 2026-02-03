@@ -12,6 +12,10 @@ class User(AbstractUser):
         REVIEWER = 'reviewer', 'Reviewer'
         LANGUAGE_LEAD = 'language_lead', 'Language Lead'
         ADMIN = 'admin', 'Admin'
+        SUPERUSER = 'superuser', 'Super User'
+    
+    email = models.EmailField(unique=True)  # Make email unique
+    username = models.CharField(max_length=150, unique=True)  # Ensure username is unique
     
     role = models.CharField(
         max_length=20,

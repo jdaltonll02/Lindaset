@@ -1,142 +1,82 @@
 from django.db import models
-from django.core.validators import MinLengthValidator
-
+from django.conf import settings
 
 class Language(models.Model):
-    """Liberian languages and dialects."""
+    FAMILY_CHOICES = [
+        ('niger_congo', 'Niger-Congo'),
+        ('mande', 'Mande'),
+        ('kru', 'Kru'),
+        ('atlantic', 'Atlantic'),
+        ('other', 'Other'),
+    ]
     
-    class LanguageFamily(models.TextChoices):
-        MANDE = 'mande', 'Mande'
-        KRU = 'kru', 'Kru'
-        MEL = 'mel', 'Mel'
-        NIGER_CONGO = 'niger_congo', 'Niger-Congo'
-        CREOLE = 'creole', 'Creole'
+    ENDANGERMENT_CHOICES = [
+        ('safe', 'Safe'),
+        ('vulnerable', 'Vulnerable'),
+        ('definitely_endangered', 'Definitely Endangered'),
+        ('severely_endangered', 'Severely Endangered'),
+        ('critically_endangered', 'Critically Endangered'),
+        ('extinct', 'Extinct'),
+    ]
     
     name = models.CharField(max_length=100, unique=True)
-    iso_code = models.CharField(max_length=10, unique=True, null=True, blank=True)
-    family = models.CharField(max_length=20, choices=LanguageFamily.choices)
-    is_active = models.BooleanField(default=True)
+    iso_code = models.CharField(max_length=10, blank=True, null=True)
+    family = models.CharField(max_length=20, choices=FAMILY_CHOICES, default='niger_congo')
+    estimated_speakers = models.IntegerField(blank=True, null=True)
+    endangerment_level = models.CharField(max_length=25, choices=ENDANGERMENT_CHOICES, default='safe')
+    regions = models.TextField(blank=True)
     description = models.TextField(blank=True)
-    
-    # Geographic and demographic info
-    regions = models.TextField(help_text="Comma-separated list of regions")
-    estimated_speakers = models.PositiveIntegerField(null=True, blank=True)
-    
-    # Language status
-    endangerment_level = models.CharField(
-        max_length=25,
-        choices=[
-            ('safe', 'Safe'),
-            ('vulnerable', 'Vulnerable'),
-            ('definitely_endangered', 'Definitely Endangered'),
-            ('severely_endangered', 'Severely Endangered'),
-            ('critically_endangered', 'Critically Endangered'),
-            ('extinct', 'Extinct'),
-        ],
-        default='safe'
-    )
-    
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['name']
     
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
-
-class Script(models.Model):
-    """Writing systems used for languages."""
+class TextData(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
     
-    name = models.CharField(max_length=50, unique=True)
-    unicode_range = models.CharField(max_length=100, blank=True)
-    direction = models.CharField(
-        max_length=10,
-        choices=[('ltr', 'Left-to-Right'), ('rtl', 'Right-to-Left')],
-        default='ltr'
-    )
-    description = models.TextField(blank=True)
-    
-    def __str__(self) -> str:
-        return self.name
-
-
-class Orthography(models.Model):
-    """Orthographic conventions for languages."""
-    
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='orthographies')
-    script = models.ForeignKey(Script, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    is_official = models.BooleanField(default=False)
-    is_primary = models.BooleanField(default=False)
-    
-    # Character mappings and rules
-    alphabet = models.TextField(help_text="Characters used in this orthography")
-    tone_marking = models.BooleanField(default=False)
-    tone_system = models.TextField(blank=True)
-    
-    # Validation rules
-    character_set = models.TextField(blank=True, help_text="Allowed characters (regex)")
-    normalization_rules = models.JSONField(default=dict, blank=True)
-    
+    source_text = models.TextField()
+    target_text = models.TextField()
+    source_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='source_texts')
+    target_language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='target_texts')
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     
-    class Meta:
-        unique_together = ['language', 'name']
-        ordering = ['-is_primary', '-is_official', 'name']
-    
-    def __str__(self) -> str:
-        return f"{self.language.name} - {self.name}"
+    def __str__(self):
+        return f"{self.source_text[:50]} -> {self.target_text[:50]}"
 
-
-class LanguageVariant(models.Model):
-    """Dialects and regional variants."""
+class AudioData(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
     
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='variants')
-    name = models.CharField(max_length=100)
-    region = models.CharField(max_length=100)
-    is_standard = models.BooleanField(default=False)
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
     
-    # Linguistic features
-    phonological_notes = models.TextField(blank=True)
-    lexical_notes = models.TextField(blank=True)
-    grammatical_notes = models.TextField(blank=True)
-    
+    text = models.TextField()
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    file_path = models.CharField(max_length=500)
+    duration = models.IntegerField(blank=True, null=True)  # in seconds
+    speaker_gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
+    speaker_age_range = models.CharField(max_length=20, blank=True)
+    quality_score = models.IntegerField(blank=True, null=True)  # 1-5
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     
-    class Meta:
-        unique_together = ['language', 'name']
-    
-    def __str__(self) -> str:
-        return f"{self.language.name} ({self.name})"
-
-
-class LanguagePair(models.Model):
-    """Translation pairs for MT tasks."""
-    
-    source_language = models.ForeignKey(
-        Language, 
-        on_delete=models.CASCADE, 
-        related_name='source_pairs'
-    )
-    target_language = models.ForeignKey(
-        Language, 
-        on_delete=models.CASCADE, 
-        related_name='target_pairs'
-    )
-    is_active = models.BooleanField(default=True)
-    priority = models.PositiveIntegerField(default=1)
-    
-    # Statistics
-    sentence_count = models.PositiveIntegerField(default=0)
-    validated_count = models.PositiveIntegerField(default=0)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ['source_language', 'target_language']
-        ordering = ['-priority', 'source_language__name']
-    
-    def __str__(self) -> str:
-        return f"{self.source_language.name} → {self.target_language.name}"
+    def __str__(self):
+        return f"{self.text[:50]} ({self.language.name})"

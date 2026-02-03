@@ -20,6 +20,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
 ]
@@ -27,6 +28,8 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'apps.accounts',
     'apps.languages',
+    'apps.system',
+    'apps.roles',
     'apps.tasks',
     'apps.text_data',
     'apps.audio_data',
@@ -77,19 +80,20 @@ DATABASES = {
     }
 }
 
-# MongoDB Configuration (conditional import)
-try:
-    import mongoengine
-    mongoengine.connect(
-        db=config('MONGO_DB_NAME', default='liberian_nlp'),
-        host=config('MONGO_HOST', default='mongodb://localhost:27017'),
-        username=config('MONGO_USER', default=''),
-        password=config('MONGO_PASSWORD', default=''),
-        authentication_source=config('MONGO_AUTH_SOURCE', default='admin')
-    )
-    MONGODB_AVAILABLE = True
-except ImportError:
-    MONGODB_AVAILABLE = False
+# MongoDB Configuration (conditional import) - DISABLED
+# try:
+#     import mongoengine
+#     mongoengine.connect(
+#         db=config('MONGO_DB_NAME', default='liberian_nlp'),
+#         host=config('MONGO_HOST', default='mongodb://localhost:27017'),
+#         username=config('MONGO_USER', default=''),
+#         password=config('MONGO_PASSWORD', default=''),
+#         authentication_source=config('MONGO_AUTH_SOURCE', default='admin')
+#     )
+#     MONGODB_AVAILABLE = True
+# except ImportError:
+#     MONGODB_AVAILABLE = False
+MONGODB_AVAILABLE = False
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -142,6 +146,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True  # Temporary for debugging
+
 # Celery Configuration
 CELERY_BROKER_URL = 'memory://'
 CELERY_RESULT_BACKEND = 'cache+memory://'
@@ -158,6 +165,15 @@ if USE_S3:
     AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
     AWS_S3_ENDPOINT_URL = config('AWS_S3_ENDPOINT_URL', default=None)
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# Email Configuration
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@liberian-nlp.com')
 
 # Audio processing settings
 AUDIO_SAMPLE_RATE = 16000

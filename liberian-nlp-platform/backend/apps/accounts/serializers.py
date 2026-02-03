@@ -13,6 +13,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'password_confirm', 'preferred_languages']
     
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already exists")
+        return value
+    
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email already registered")
+        return value
+    
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")
@@ -42,7 +52,17 @@ class UserLoginSerializer(serializers.Serializer):
         password = attrs.get('password')
         
         if username and password:
+            # Try to authenticate with username first
             user = authenticate(username=username, password=password)
+            
+            # If username auth fails, try email
+            if not user:
+                try:
+                    user_obj = User.objects.get(email=username)
+                    user = authenticate(username=user_obj.username, password=password)
+                except User.DoesNotExist:
+                    pass
+            
             if not user:
                 raise serializers.ValidationError('Invalid credentials')
             if not user.is_active:

@@ -1,13 +1,14 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
+router = DefaultRouter()
+router.register(r'languages', views.LanguageViewSet)
+router.register(r'text-data', views.TextDataViewSet)
+router.register(r'audio-data', views.AudioDataViewSet)
+
 urlpatterns = [
-    path('', views.LanguageListView.as_view(), name='language-list'),
-    path('<int:pk>/', views.LanguageDetailView.as_view(), name='language-detail'),
-    path('scripts/', views.ScriptListView.as_view(), name='script-list'),
-    path('orthographies/', views.OrthographyListView.as_view(), name='orthography-list'),
-    path('variants/', views.LanguageVariantListView.as_view(), name='variant-list'),
-    path('pairs/', views.LanguagePairListView.as_view(), name='pair-list'),
-    path('stats/', views.language_stats, name='language-stats'),
-    path('liberian/', views.liberian_languages, name='liberian-languages'),
+    path('', include(router.urls)),
+    path('languages/', views.languages_list, name='languages-list'),
+    path('languages/create/', views.create_language, name='create-language'),
 ]

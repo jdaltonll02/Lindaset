@@ -30,26 +30,15 @@ export function LoginPage() {
 
     setIsSubmitting(true)
     try {
-      const response = await authApi.login({
+      await login({
         username: formData.username,
         password: formData.password
       })
       
-      console.log('Login response:', response)
-      
-      const userData = {
-        id: Date.now(),
-        username: formData.username,
-        email: `${formData.username}@example.com`,
-        role: 'contributor' as const
-      }
-      
-      console.log('Calling login with userData:', userData)
-      login(userData)
-      
-      console.log('Navigating to dashboard')
+      console.log('Login successful, navigating to dashboard')
       navigate('/dashboard')
     } catch (error: any) {
+      console.error('Login error:', error)
       setErrors({ submit: 'Invalid username or password' })
     } finally {
       setIsSubmitting(false)
@@ -109,7 +98,7 @@ export function LoginPage() {
                 />
                 <span className="text-sm text-gray-700">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-primary-600 hover:underline">
+              <a href="/forgot-password" className="text-sm text-primary-600 hover:underline">
                 Forgot password?
               </a>
             </div>
@@ -143,8 +132,8 @@ export function LoginPage() {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h4 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h4>
             <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>Username:</strong> demo_user</p>
-              <p><strong>Password:</strong> password123</p>
+              <p><strong>Username:</strong> admin</p>
+              <p><strong>Password:</strong> admin123</p>
             </div>
           </div>
         </div>
